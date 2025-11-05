@@ -1,0 +1,8 @@
+author: Gos
+author_url: https://twitter.com/-
+github_url: https://github.com/gendonholaholo/jogiia-absensi
+root_url: https://gendonholaholo.github.io/jogiia-absensi/
+module: jogiia-absensi
+output: docs
+theme: fullwidth
+xcodebuild_arguments: [-workspace, 'jogiia-absensi.xcworkspace', -scheme, 'jogiia-absensi-iOS']
