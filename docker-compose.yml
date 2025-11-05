@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  absensi-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: jogiia-absensi
+    image: jogiia-absensi:latest
+    ports:
+      - "8080:80"
+    restart: unless-stopped
+    networks:
+      - absensi-network
+    labels:
+      - "com.jogiia.app=absensi"
+      - "com.jogiia.version=1.0.0"
+      - "com.jogiia.description=Live Geolocation & Camera Attendance System"
+
+networks:
+  absensi-network:
+    driver: bridge
+
+# Optional: Volume untuk logs
+# volumes:
+#   nginx-logs:
+#     driver: local
