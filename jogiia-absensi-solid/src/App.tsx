@@ -29,10 +29,21 @@ function App() {
   const [currentTime, setCurrentTime] = createSignal<string>('-');
   const [locationStatus, setLocationStatus] = createSignal<string>('Menginisialisasi...');
   const [showLocationDot, setShowLocationDot] = createSignal<boolean>(false);
+  const [isMobile, setIsMobile] = createSignal<boolean>(false);
 
   let videoRef: HTMLVideoElement | undefined;
   let canvasRef: HTMLCanvasElement | undefined;
   let locationWatchId: number | undefined;
+
+  // Detect mobile device
+  createEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    onCleanup(() => window.removeEventListener('resize', checkMobile));
+  });
 
   // Update timestamp every second
   createEffect(() => {
@@ -423,7 +434,7 @@ function App() {
         onClick={capturePhoto}
         disabled={!captureEnabled()}
       >
-        Tekan SPACE atau klik untuk Absen
+        {isMobile() ? 'Ambil Foto Absensi' : 'Tekan SPACE atau klik untuk Absen'}
       </button>
 
       <button
