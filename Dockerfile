@@ -1,15 +1,16 @@
 # Jogiia Absensi - Docker Image
-# Menggunakan Nginx untuk serve static HTML application
+# Ultra-fast SolidJS application served with Nginx
 
 FROM nginx:alpine
 
 # Metadata
 LABEL maintainer="fafaghaws@live.com"
-LABEL description="Jogiia Absensi - Live Geolocation & Camera Attendance System"
-LABEL version="1.0.0"
+LABEL description="Jogiia Absensi - Live Geolocation & Camera Attendance System (SolidJS)"
+LABEL version="2.0.0"
+LABEL tech="SolidJS + Vite"
 
-# Copy application file
-COPY absensi-tool.html /usr/share/nginx/html/index.html
+# Copy SolidJS build output
+COPY jogiia-absensi-solid/dist/ /usr/share/nginx/html/
 
 # Copy custom nginx configuration
 COPY nginx.conf /etc/nginx/conf.d/default.conf
