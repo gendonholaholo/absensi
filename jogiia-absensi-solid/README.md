@@ -1,28 +1,75 @@
-## Usage
+# Jogiia Absensi - SolidJS Application
+
+Ultra-fast attendance system with live geolocation tracking and camera capture.
+
+## Tech Stack
+
+- **Framework**: SolidJS 1.9.9
+- **Build Tool**: Vite 7.1.7
+- **Language**: TypeScript 5.9.3
+- **Styling**: CSS3 with Fluent Design
+
+## Features
+
+- Live camera capture with watermarking
+- Real-time GPS tracking and reverse geocoding
+- Mobile-first responsive design
+- 48px minimum touch targets for accessibility
+- Fluid typography and spacing
+- Copy image to clipboard functionality
+
+## Development
 
 ```bash
-$ npm install # or pnpm install or yarn install
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
+
+# Preview production build
+npm run preview
 ```
 
-### Learn more on the [Solid Website](https://solidjs.com) and come chat with us on our [Discord](https://discord.com/invite/solidjs)
+## Building
 
-## Available Scripts
+```bash
+# Build for production
+npm run build
+```
 
-In the project directory, you can run:
+Production build generates highly optimized files:
 
-### `npm run dev`
+- **index.html**: 0.47 kB (gzip: 0.30 kB)
+- **CSS bundle**: 9.03 kB (gzip: 2.44 kB)
+- **JS bundle**: 16.06 kB (gzip: 6.76 kB)
 
-Runs the app in the development mode.<br>
-Open [http://localhost:5173](http://localhost:5173) to view it in the browser.
+Total: ~9.5 kB gzipped
 
-### `npm run build`
+## Browser Support
 
-Builds the app for production to the `dist` folder.<br>
-It correctly bundles Solid in production mode and optimizes the build for the best performance.
+- Chrome/Edge (latest)
+- Firefox (latest)
+- Safari (latest)
+- Mobile browsers (iOS Safari, Chrome Android)
 
-The build is minified and the filenames include the hashes.<br>
-Your app is ready to be deployed!
+Requires HTTPS for camera and geolocation APIs.
 
 ## Deployment
 
-Learn more about deploying your application with the [documentations](https://vite.dev/guide/static-deploy.html)
+### Vercel (Recommended)
+
+1. Set Root Directory to `jogiia-absensi-solid`
+2. Framework preset: Vite (auto-detected)
+3. Build command: `npm run build`
+4. Output directory: `dist`
+
+The included `vercel.json` handles SPA routing.
+
+### Docker
+
+See root directory for Docker deployment with nginx.
+
+## License
+
+Private project - All rights reserved
