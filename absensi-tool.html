@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tools Absensi - Jogiia</title>
+    <style>
+        /* Microsoft Fluent Design Dark Mode - Inspired by Outlook */
+
+        :root {
+            /* Fluent Dark Mode Color Tokens */
+            --bg-primary: #1E1E1E;
+            --bg-secondary: #252525;
+            --bg-tertiary: #2B2B2B;
+            --bg-elevated: #323232;
+
+            --text-primary: #FFFFFF;
+            --text-secondary: #E1E1E1;
+            --text-tertiary: #C8C8C8;
+            --text-disabled: #797979;
+
+            --accent-primary: #0078D4;
+            --accent-hover: #106EBE;
+            --accent-pressed: #005A9E;
+
+            --success: #107C10;
+            --warning: #FFC83D;
+            --error: #D13438;
+
+            --border-default: #3B3B3B;
+            --border-subtle: #2B2B2B;
+
+            /* Spacing - 4px base unit */
+            --space-xs: 4px;
+            --space-sm: 8px;
+            --space-md: 12px;
+            --space-lg: 16px;
+            --space-xl: 20px;
+            --space-2xl: 24px;
+            --space-3xl: 32px;
+
+            /* Border radius */
+            --radius-sm: 4px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+
+            /* Shadows */
+            --shadow-sm: 0 1.6px 3.6px rgba(0, 0, 0, 0.3);
+            --shadow-md: 0 3.2px 7.2px rgba(0, 0, 0, 0.35);
+            --shadow-lg: 0 6.4px 14.4px rgba(0, 0, 0, 0.4);
+
+            /* Typography */
+            --font-size-xs: 12px;
+            --font-size-sm: 13px;
+            --font-size-base: 14px;
+            --font-size-lg: 16px;
+            --font-size-xl: 20px;
+            --font-size-2xl: 24px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Roboto', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: var(--space-xl);
+            font-size: var(--font-size-base);
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .container {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-default);
+            box-shadow: var(--shadow-lg);
+            padding: var(--space-3xl);
+            max-width: 900px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--text-primary);
+            margin-bottom: var(--space-sm);
+            font-size: var(--font-size-2xl);
+            font-weight: 600;
+            letter-spacing: -0.02em;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: var(--text-tertiary);
+            margin-bottom: var(--space-2xl);
+            font-size: var(--font-size-sm);
+            font-weight: 400;
+        }
+
+        .video-container {
+            position: relative;
+            background: #000000;
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            margin-bottom: var(--space-xl);
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border-subtle);
+        }
+
+        #video {
+            width: 100%;
+            height: auto;
+            display: block;
+            transform: scaleX(-1);
+        }
+
+        #canvas {
+            display: none;
+        }
+
+        .info-box {
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-default);
+            padding: var(--space-xl);
+            margin-bottom: var(--space-xl);
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: var(--space-md);
+            align-items: flex-start;
+            gap: var(--space-lg);
+        }
+
+        .info-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: var(--text-secondary);
+            min-width: 100px;
+            font-size: var(--font-size-sm);
+        }
+
+        .info-value {
+            flex: 1;
+            color: var(--text-primary);
+            text-align: right;
+            word-break: break-word;
+            font-size: var(--font-size-sm);
+        }
+
+        .status {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-default);
+            padding: var(--space-md);
+            border-radius: var(--radius-sm);
+            text-align: center;
+            margin-bottom: var(--space-xl);
+            font-weight: 400;
+            color: var(--text-secondary);
+            font-size: var(--font-size-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-sm);
+        }
+
+        .status::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--text-disabled);
+        }
+
+        .status.success {
+            background: rgba(16, 124, 16, 0.15);
+            border-color: var(--success);
+            color: #6FCF6F;
+        }
+
+        .status.success::before {
+            background: var(--success);
+            box-shadow: 0 0 8px rgba(16, 124, 16, 0.5);
+        }
+
+        .status.error {
+            background: rgba(209, 52, 56, 0.15);
+            border-color: var(--error);
+            color: #F1707B;
+        }
+
+        .status.error::before {
+            background: var(--error);
+            box-shadow: 0 0 8px rgba(209, 52, 56, 0.5);
+        }
+
+        .btn-capture {
+            width: 100%;
+            padding: var(--space-md) var(--space-2xl);
+            background: var(--accent-primary);
+            color: var(--text-primary);
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: var(--font-size-base);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: var(--shadow-sm);
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .btn-capture:hover {
+            background: var(--accent-hover);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-capture:active {
+            background: var(--accent-pressed);
+            transform: scale(0.98);
+        }
+
+        .btn-capture:disabled {
+            background: var(--bg-elevated);
+            color: var(--text-disabled);
+            cursor: not-allowed;
+            box-shadow: none;
+            border: 1px solid var(--border-default);
+        }
+
+        .instruction {
+            text-align: center;
+            color: var(--text-tertiary);
+            font-size: var(--font-size-xs);
+            margin-top: var(--space-lg);
+        }
+
+        .loading {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border: 2px solid var(--accent-primary);
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .location-status {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-sm);
+        }
+
+        .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--success);
+            animation: pulse 2s ease-in-out infinite;
+            box-shadow: 0 0 8px rgba(16, 124, 16, 0.5);
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.6;
+                transform: scale(0.95);
+            }
+        }
+
+        /* Scrollbar styling for dark mode */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--bg-elevated);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #424242;
+        }
+
+        /* Focus states */
+        .btn-capture:focus-visible {
+            outline: 2px solid var(--accent-primary);
+            outline-offset: 2px;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            body {
+                padding: var(--space-lg);
+            }
+
+            .container {
+                padding: var(--space-xl);
+            }
+
+            h1 {
+                font-size: var(--font-size-xl);
+            }
+
+            .info-row {
+                flex-direction: column;
+                gap: var(--space-xs);
+            }
+
+            .info-value {
+                text-align: left;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Tools Absensi</h1>
+        <p class="subtitle">Live Geolocation & Camera Capture</p>
+
+        <div class="status" id="status">
+            Memulai aplikasi...
+        </div>
+
+        <div class="video-container">
+            <video id="video" autoplay playsinline></video>
+        </div>
+
+        <canvas id="canvas"></canvas>
+
+        <div class="info-box">
+            <div class="info-row">
+                <span class="info-label">Koordinat</span>
+                <span class="info-value" id="coordinates">Menunggu GPS...</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Alamat</span>
+                <span class="info-value" id="address">Menunggu GPS...</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Waktu</span>
+                <span class="info-value" id="timestamp">-</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Status Lokasi</span>
+                <span class="info-value location-status">
+                    <span class="dot" id="locationDot" style="display:none;"></span>
+                    <span id="locationStatus">Menginisialisasi...</span>
+                </span>
+            </div>
+        </div>
+
+        <button class="btn-capture" id="captureBtn" disabled>
+            Tekan SPACE atau klik untuk Absen
+        </button>
+
+        <p class="instruction">
+            Pastikan wajah terlihat jelas dan izinkan akses kamera & lokasi
+        </p>
+    </div>
+
+    <script>
+        // Global variables
+        let videoStream = null;
+        let currentLocation = null;
+        let currentAddress = 'Belum tersedia';
+        let locationWatchId = null;
+
+        // DOM Elements
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const captureBtn = document.getElementById('captureBtn');
+        const statusDiv = document.getElementById('status');
+        const coordinatesSpan = document.getElementById('coordinates');
+        const addressSpan = document.getElementById('address');
+        const timestampSpan = document.getElementById('timestamp');
+        const locationStatusSpan = document.getElementById('locationStatus');
+        const locationDot = document.getElementById('locationDot');
+
+        // Update timestamp every second
+        setInterval(() => {
+            const now = new Date();
+            const formatted = now.toLocaleString('id-ID', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+            timestampSpan.textContent = formatted;
+        }, 1000);
+
+        // Initialize camera
+        async function initCamera() {
+            try {
+                statusDiv.textContent = 'Mengakses kamera...';
+                statusDiv.className = 'status';
+
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 },
+                        facingMode: 'user'
+                    },
+                    audio: false
+                });
+
+                video.srcObject = stream;
+                videoStream = stream;
+
+                statusDiv.textContent = 'Kamera aktif. Menunggu GPS...';
+                statusDiv.className = 'status success';
+
+                return true;
+            } catch (error) {
+                console.error('Error accessing camera:', error);
+                statusDiv.textContent = 'Gagal mengakses kamera: ' + error.message;
+                statusDiv.className = 'status error';
+                return false;
+            }
+        }
+
+        // Initialize geolocation
+        function initGeolocation() {
+            if (!navigator.geolocation) {
+                statusDiv.textContent = 'Browser tidak mendukung geolocation';
+                statusDiv.className = 'status error';
+                return;
+            }
+
+            locationStatusSpan.textContent = 'Mencari lokasi...';
+
+            // Watch position for real-time updates
+            locationWatchId = navigator.geolocation.watchPosition(
+                onLocationSuccess,
+                onLocationError,
+                {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 0
+                }
+            );
+        }
+
+        // Location success callback
+        async function onLocationSuccess(position) {
+            currentLocation = {
+                latitude: position.coords.latitude,
+                longitude: position.coords.longitude,
+                accuracy: position.coords.accuracy
+            };
+
+            // Update coordinates display
+            coordinatesSpan.textContent = `${currentLocation.latitude.toFixed(6)}, ${currentLocation.longitude.toFixed(6)} (±${Math.round(currentLocation.accuracy)}m)`;
+
+            locationStatusSpan.textContent = 'Lokasi aktif';
+            locationDot.style.display = 'inline-block';
+
+            // Enable capture button
+            if (videoStream) {
+                captureBtn.disabled = false;
+                statusDiv.textContent = 'Siap untuk absen. Tekan SPACE atau klik tombol';
+                statusDiv.className = 'status success';
+            }
+
+            // Fetch address using reverse geocoding
+            await fetchAddress(currentLocation.latitude, currentLocation.longitude);
+        }
+
+        // Location error callback
+        function onLocationError(error) {
+            let errorMsg = '';
+            switch(error.code) {
+                case error.PERMISSION_DENIED:
+                    errorMsg = 'Izin lokasi ditolak';
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    errorMsg = 'Lokasi tidak tersedia';
+                    break;
+                case error.TIMEOUT:
+                    errorMsg = 'Timeout mencari lokasi';
+                    break;
+                default:
+                    errorMsg = 'Error tidak diketahui';
+            }
+
+            locationStatusSpan.textContent = errorMsg;
+            locationDot.style.display = 'none';
+
+            console.error('Geolocation error:', error);
+        }
+
+        // Fetch address using Nominatim (OpenStreetMap)
+        async function fetchAddress(lat, lon) {
+            try {
+                addressSpan.innerHTML = '<span class="loading"></span> Mencari alamat...';
+
+                const response = await fetch(
+                    `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=18&addressdetails=1`,
+                    {
+                        headers: {
+                            'User-Agent': 'Jogiia-Absensi-Tool/1.0'
+                        }
+                    }
+                );
+
+                if (!response.ok) {
+                    throw new Error('Gagal mendapatkan alamat');
+                }
+
+                const data = await response.json();
+
+                if (data.display_name) {
+                    currentAddress = data.display_name;
+                    addressSpan.textContent = currentAddress;
+                } else {
+                    addressSpan.textContent = 'Alamat tidak ditemukan';
+                }
+            } catch (error) {
+                console.error('Error fetching address:', error);
+                addressSpan.textContent = 'Gagal mendapatkan alamat';
+            }
+        }
+
+        // Capture photo
+        function capturePhoto() {
+            if (!currentLocation) {
+                alert('Lokasi belum tersedia! Tunggu GPS aktif.');
+                return;
+            }
+
+            // Set canvas size to match video
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+
+            // Draw video frame to canvas (mirror it back to normal)
+            const ctx = canvas.getContext('2d');
+            ctx.translate(canvas.width, 0);
+            ctx.scale(-1, 1);
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            // Add overlay text with location info
+            ctx.setTransform(1, 0, 0, 1, 0, 0); // Reset transform
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+            ctx.fillRect(0, canvas.height - 120, canvas.width, 120);
+
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 18px Arial';
+
+            const now = new Date();
+            const dateStr = now.toLocaleString('id-ID', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+
+            ctx.fillText(dateStr, 20, canvas.height - 85);
+            ctx.fillText(`${currentLocation.latitude.toFixed(6)}, ${currentLocation.longitude.toFixed(6)}`, 20, canvas.height - 55);
+
+            ctx.font = '14px Arial';
+            const maxAddressWidth = canvas.width - 40;
+            const addressText = truncateText(ctx, currentAddress, maxAddressWidth);
+            ctx.fillText(addressText, 20, canvas.height - 25);
+
+            // Convert canvas to blob and download
+            canvas.toBlob((blob) => {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+
+                const filename = `absensi_${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}_${String(now.getHours()).padStart(2,'0')}-${String(now.getMinutes()).padStart(2,'0')}-${String(now.getSeconds()).padStart(2,'0')}.jpg`;
+
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+
+                // Show success message
+                statusDiv.textContent = `Foto absensi berhasil disimpan: ${filename}`;
+                statusDiv.className = 'status success';
+
+                // Flash effect
+                video.style.opacity = '0.3';
+                setTimeout(() => {
+                    video.style.opacity = '1';
+                }, 200);
+
+            }, 'image/jpeg', 0.95);
+        }
+
+        // Truncate text to fit width
+        function truncateText(ctx, text, maxWidth) {
+            const metrics = ctx.measureText(text);
+            if (metrics.width <= maxWidth) {
+                return text;
+            }
+
+            let truncated = text;
+            while (ctx.measureText(truncated + '...').width > maxWidth && truncated.length > 0) {
+                truncated = truncated.substring(0, truncated.length - 1);
+            }
+            return truncated + '...';
+        }
+
+        // Event listeners
+        captureBtn.addEventListener('click', capturePhoto);
+
+        // Space bar to capture
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' && !captureBtn.disabled) {
+                e.preventDefault();
+                capturePhoto();
+            }
+        });
+
+        // Initialize on page load
+        window.addEventListener('load', async () => {
+            const cameraOk = await initCamera();
+            if (cameraOk) {
+                initGeolocation();
+            }
+        });
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', () => {
+            if (videoStream) {
+                videoStream.getTracks().forEach(track => track.stop());
+            }
+            if (locationWatchId) {
+                navigator.geolocation.clearWatch(locationWatchId);
+            }
+        });
+    </script>
+</body>
+</html>
