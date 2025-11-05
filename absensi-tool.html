@@ -27,6 +27,10 @@
             --warning: #FFC83D;
             --error: #D13438;
 
+            --copy-primary: #0078D4;
+            --copy-hover: #106EBE;
+            --copy-pressed: #005A9E;
+
             --border-default: #3B3B3B;
             --border-subtle: #2B2B2B;
 
@@ -241,6 +245,57 @@
             border: 1px solid var(--border-default);
         }
 
+        .btn-copy-image {
+            width: 100%;
+            padding: var(--space-md) var(--space-2xl);
+            background: var(--bg-elevated);
+            color: var(--text-primary);
+            border: 1px solid var(--border-default);
+            border-radius: var(--radius-sm);
+            font-size: var(--font-size-base);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: var(--shadow-sm);
+            font-family: 'Segoe UI', sans-serif;
+            margin-top: var(--space-md);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-sm);
+        }
+
+        .btn-copy-image:hover {
+            background: var(--bg-tertiary);
+            border-color: var(--copy-hover);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-copy-image:active {
+            background: var(--bg-secondary);
+            transform: scale(0.98);
+        }
+
+        .btn-copy-image.show {
+            display: flex;
+            animation: slideUp 0.3s ease-out;
+        }
+
+        .btn-copy-image svg {
+            flex-shrink: 0;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
         .instruction {
             text-align: center;
             color: var(--text-tertiary);
@@ -379,8 +434,16 @@
             Tekan SPACE atau klik untuk Absen
         </button>
 
+        <button class="btn-copy-image" id="copyImageBtn">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+            </svg>
+            Copy Image
+        </button>
+
         <p class="instruction">
-            Pastikan wajah terlihat jelas dan izinkan akses kamera & lokasi
+            Foto akan otomatis tersimpan di Downloads. Klik "Copy Image" untuk copy ke clipboard, lalu paste manual ke WhatsApp group.
         </p>
     </div>
 
@@ -390,11 +453,14 @@
         let currentLocation = null;
         let currentAddress = 'Belum tersedia';
         let locationWatchId = null;
+        let lastCapturedBlob = null;
+        let lastCapturedData = null;
 
         // DOM Elements
         const video = document.getElementById('video');
         const canvas = document.getElementById('canvas');
         const captureBtn = document.getElementById('captureBtn');
+        const copyImageBtn = document.getElementById('copyImageBtn');
         const statusDiv = document.getElementById('status');
         const coordinatesSpan = document.getElementById('coordinates');
         const addressSpan = document.getElementById('address');
@@ -593,21 +659,32 @@
 
             // Convert canvas to blob and download
             canvas.toBlob((blob) => {
+                // Save blob and data for sharing
+                lastCapturedBlob = blob;
+                lastCapturedData = {
+                    timestamp: dateStr,
+                    latitude: currentLocation.latitude.toFixed(6),
+                    longitude: currentLocation.longitude.toFixed(6),
+                    address: currentAddress,
+                    filename: `absensi_${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}_${String(now.getHours()).padStart(2,'0')}-${String(now.getMinutes()).padStart(2,'0')}-${String(now.getSeconds()).padStart(2,'0')}.jpg`
+                };
+
+                // Download file
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
-
-                const filename = `absensi_${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}_${String(now.getHours()).padStart(2,'0')}-${String(now.getMinutes()).padStart(2,'0')}-${String(now.getSeconds()).padStart(2,'0')}.jpg`;
-
                 a.href = url;
-                a.download = filename;
+                a.download = lastCapturedData.filename;
                 document.body.appendChild(a);
                 a.click();
                 document.body.removeChild(a);
                 URL.revokeObjectURL(url);
 
                 // Show success message
-                statusDiv.textContent = `Foto absensi berhasil disimpan: ${filename}`;
+                statusDiv.textContent = `Foto tersimpan di Downloads. Klik "Copy Image" untuk share ke WhatsApp.`;
                 statusDiv.className = 'status success';
+
+                // Show copy button
+                copyImageBtn.classList.add('show');
 
                 // Flash effect
                 video.style.opacity = '0.3';
@@ -632,8 +709,55 @@
             return truncated + '...';
         }
 
+        // Copy image to clipboard
+        async function copyImageToClipboard() {
+            if (!lastCapturedBlob || !lastCapturedData) {
+                alert('Belum ada foto yang di-capture. Silakan ambil foto absensi terlebih dahulu.');
+                return;
+            }
+
+            // Check if Clipboard API is supported
+            if (!navigator.clipboard || !navigator.clipboard.write) {
+                statusDiv.textContent = 'Browser tidak mendukung copy image. Gunakan Chrome/Safari/Edge terbaru.';
+                statusDiv.className = 'status error';
+                return;
+            }
+
+            try {
+                // Create ClipboardItem with PNG blob
+                const clipboardItem = new ClipboardItem({
+                    'image/png': lastCapturedBlob
+                });
+
+                // Write to clipboard
+                await navigator.clipboard.write([clipboardItem]);
+
+                // Show success message with clear instructions
+                statusDiv.textContent = '✓ Image copied! Buka WhatsApp Web → Pilih group → Paste (Cmd+V / Ctrl+V)';
+                statusDiv.className = 'status success';
+
+                // Optional: Also copy text to clipboard for convenience
+                const textInfo = `📸 ABSENSI\n\n📅 ${lastCapturedData.timestamp}\n📍 ${lastCapturedData.latitude}, ${lastCapturedData.longitude}\n🏠 ${lastCapturedData.address}`;
+                console.log('Info absensi:', textInfo);
+
+            } catch (error) {
+                console.error('Error copying to clipboard:', error);
+                
+                // Provide helpful error messages
+                if (error.name === 'NotAllowedError') {
+                    statusDiv.textContent = 'Permission ditolak. Pastikan fokus di window ini dan coba lagi.';
+                } else if (error.name === 'NotSupportedError') {
+                    statusDiv.textContent = 'Browser tidak support copy image. Gunakan Chrome/Safari/Edge.';
+                } else {
+                    statusDiv.textContent = `Gagal copy: ${error.message}. Foto sudah tersimpan di Downloads.`;
+                }
+                statusDiv.className = 'status error';
+            }
+        }
+
         // Event listeners
         captureBtn.addEventListener('click', capturePhoto);
+        copyImageBtn.addEventListener('click', copyImageToClipboard);
 
         // Space bar to capture
         document.addEventListener('keydown', (e) => {
