@@ -27,9 +27,9 @@
             --warning: #FFC83D;
             --error: #D13438;
 
-            --whatsapp-primary: #25D366;
-            --whatsapp-hover: #20BA56;
-            --whatsapp-pressed: #1DA851;
+            --copy-primary: #0078D4;
+            --copy-hover: #106EBE;
+            --copy-pressed: #005A9E;
 
             --border-default: #3B3B3B;
             --border-subtle: #2B2B2B;
@@ -245,12 +245,12 @@
             border: 1px solid var(--border-default);
         }
 
-        .btn-share-whatsapp {
+        .btn-copy-image {
             width: 100%;
             padding: var(--space-md) var(--space-2xl);
-            background: var(--whatsapp-primary);
+            background: var(--bg-elevated);
             color: var(--text-primary);
-            border: none;
+            border: 1px solid var(--border-default);
             border-radius: var(--radius-sm);
             font-size: var(--font-size-base);
             font-weight: 600;
@@ -265,19 +265,24 @@
             gap: var(--space-sm);
         }
 
-        .btn-share-whatsapp:hover {
-            background: var(--whatsapp-hover);
+        .btn-copy-image:hover {
+            background: var(--bg-tertiary);
+            border-color: var(--copy-hover);
             box-shadow: var(--shadow-md);
         }
 
-        .btn-share-whatsapp:active {
-            background: var(--whatsapp-pressed);
+        .btn-copy-image:active {
+            background: var(--bg-secondary);
             transform: scale(0.98);
         }
 
-        .btn-share-whatsapp.show {
+        .btn-copy-image.show {
             display: flex;
             animation: slideUp 0.3s ease-out;
+        }
+
+        .btn-copy-image svg {
+            flex-shrink: 0;
         }
 
         @keyframes slideUp {
@@ -429,15 +434,16 @@
             Tekan SPACE atau klik untuk Absen
         </button>
 
-        <button class="btn-share-whatsapp" id="shareWhatsAppBtn">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+        <button class="btn-copy-image" id="copyImageBtn">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
             </svg>
-            Share ke WhatsApp Group
+            Copy Image
         </button>
 
         <p class="instruction">
-            Pastikan wajah terlihat jelas dan izinkan akses kamera & lokasi
+            Foto akan otomatis tersimpan di Downloads. Klik "Copy Image" untuk copy ke clipboard, lalu paste manual ke WhatsApp group.
         </p>
     </div>
 
@@ -454,7 +460,7 @@
         const video = document.getElementById('video');
         const canvas = document.getElementById('canvas');
         const captureBtn = document.getElementById('captureBtn');
-        const shareWhatsAppBtn = document.getElementById('shareWhatsAppBtn');
+        const copyImageBtn = document.getElementById('copyImageBtn');
         const statusDiv = document.getElementById('status');
         const coordinatesSpan = document.getElementById('coordinates');
         const addressSpan = document.getElementById('address');
@@ -674,11 +680,11 @@
                 URL.revokeObjectURL(url);
 
                 // Show success message
-                statusDiv.textContent = `Foto absensi berhasil disimpan: ${lastCapturedData.filename}`;
+                statusDiv.textContent = `Foto tersimpan di Downloads. Klik "Copy Image" untuk share ke WhatsApp.`;
                 statusDiv.className = 'status success';
 
-                // Show share button
-                shareWhatsAppBtn.classList.add('show');
+                // Show copy button
+                copyImageBtn.classList.add('show');
 
                 // Flash effect
                 video.style.opacity = '0.3';
@@ -703,57 +709,55 @@
             return truncated + '...';
         }
 
-        // Share to WhatsApp
-        async function shareToWhatsApp() {
+        // Copy image to clipboard
+        async function copyImageToClipboard() {
             if (!lastCapturedBlob || !lastCapturedData) {
                 alert('Belum ada foto yang di-capture. Silakan ambil foto absensi terlebih dahulu.');
                 return;
             }
 
-            // Check if Web Share API is supported
-            if (!navigator.share) {
-                alert('Browser Anda tidak mendukung fitur share. Gunakan Chrome atau Safari terbaru.');
+            // Check if Clipboard API is supported
+            if (!navigator.clipboard || !navigator.clipboard.write) {
+                statusDiv.textContent = 'Browser tidak mendukung copy image. Gunakan Chrome/Safari/Edge terbaru.';
+                statusDiv.className = 'status error';
                 return;
             }
 
             try {
-                // Create File object from Blob
-                const file = new File([lastCapturedBlob], lastCapturedData.filename, { type: 'image/jpeg' });
+                // Create ClipboardItem with PNG blob
+                const clipboardItem = new ClipboardItem({
+                    'image/png': lastCapturedBlob
+                });
 
-                // Prepare share data
-                const shareData = {
-                    title: 'Absensi',
-                    text: `📸 ABSENSI\n\n📅 ${lastCapturedData.timestamp}\n📍 ${lastCapturedData.latitude}, ${lastCapturedData.longitude}\n🏠 ${lastCapturedData.address}`,
-                    files: [file]
-                };
+                // Write to clipboard
+                await navigator.clipboard.write([clipboardItem]);
 
-                // Check if files can be shared
-                if (!navigator.canShare || !navigator.canShare(shareData)) {
-                    // Fallback: share without image
-                    await navigator.share({
-                        title: shareData.title,
-                        text: shareData.text
-                    });
-                } else {
-                    // Share with image
-                    await navigator.share(shareData);
-                }
-
-                statusDiv.textContent = 'Foto berhasil dibagikan!';
+                // Show success message with clear instructions
+                statusDiv.textContent = '✓ Image copied! Buka WhatsApp Web → Pilih group → Paste (Cmd+V / Ctrl+V)';
                 statusDiv.className = 'status success';
 
+                // Optional: Also copy text to clipboard for convenience
+                const textInfo = `📸 ABSENSI\n\n📅 ${lastCapturedData.timestamp}\n📍 ${lastCapturedData.latitude}, ${lastCapturedData.longitude}\n🏠 ${lastCapturedData.address}`;
+                console.log('Info absensi:', textInfo);
+
             } catch (error) {
-                if (error.name !== 'AbortError') {
-                    console.error('Error sharing:', error);
-                    statusDiv.textContent = 'Gagal membagikan foto: ' + error.message;
-                    statusDiv.className = 'status error';
+                console.error('Error copying to clipboard:', error);
+                
+                // Provide helpful error messages
+                if (error.name === 'NotAllowedError') {
+                    statusDiv.textContent = 'Permission ditolak. Pastikan fokus di window ini dan coba lagi.';
+                } else if (error.name === 'NotSupportedError') {
+                    statusDiv.textContent = 'Browser tidak support copy image. Gunakan Chrome/Safari/Edge.';
+                } else {
+                    statusDiv.textContent = `Gagal copy: ${error.message}. Foto sudah tersimpan di Downloads.`;
                 }
+                statusDiv.className = 'status error';
             }
         }
 
         // Event listeners
         captureBtn.addEventListener('click', capturePhoto);
-        shareWhatsAppBtn.addEventListener('click', shareToWhatsApp);
+        copyImageBtn.addEventListener('click', copyImageToClipboard);
 
         // Space bar to capture
         document.addEventListener('keydown', (e) => {
