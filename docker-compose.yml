@@ -14,8 +14,9 @@ services:
       - absensi-network
     labels:
       - "com.jogiia.app=absensi"
-      - "com.jogiia.version=1.0.0"
-      - "com.jogiia.description=Live Geolocation & Camera Attendance System"
+      - "com.jogiia.version=2.0.0"
+      - "com.jogiia.tech=SolidJS+Vite"
+      - "com.jogiia.description=Ultra-fast Geolocation & Camera Attendance System"
 
 networks:
   absensi-network:
